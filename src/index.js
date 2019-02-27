@@ -3,14 +3,38 @@
 /* global dom log */
 
 var menu = {
-	list: {},
-	init: function(){
+	init: function(list = {}){
+		menu.list = list;
+
 		dom.interact.on('pointerUp', menu.onPointerUp);
 		dom.interact.on('keyDown', menu.onKeyDown);
 		dom.interact.on('keyUp', menu.onKeyUp);
+
+		menu.on('selection', menu.onSelection);
+	},
+	on: function(eventName, func){
+		const eventArrName = `on_${eventName}`;
+
+		menu[eventArrName] = menu[eventArrName] || [];
+
+		menu[eventArrName].push(func);
+	},
+	triggerEvent: function(type, evt){
+		if(!evt){
+			evt = type;
+			type = evt.type;
+		}
+
+		var eventName = `on_${type}`;
+
+		if(!menu[eventName]) return;
+
+		for(var x = 0, count = menu[eventName].length; x < count; ++x){
+			menu[eventName][x].call(menu, evt);
+		}
 	},
 	open: function(menuName, cb){
-		if(!menu.list[menuName]) return log.error('menu.list["'+ menuName +'"] is not defined!');
+		if(!menu.list[menuName]) return log.error(`menu.list["${menuName}"] is not defined!`);
 
 		menu.menuButton = menu.menuButton || document.getElementById('MenuButton');
 
@@ -39,7 +63,7 @@ var menu = {
 
 				menu.active.appendChild(li);
 				menu.items.push(li);
-				menu.itemKeys[itemOpts[0].slice(0, 1)] = x;
+				menu.itemKeys[itemOpts[0].slice(menu.itemKeys[itemOpts[0].slice(0, 1)] ? 1 : 0, 1)] = x;
 			}
 
 			dom.show(menu.active, menuName, function(){
@@ -69,6 +93,11 @@ var menu = {
 			if(menu.menuButton) menu.menuButton.className = '';
 		}
 	},
+	resetActive: function(elem){
+		setTimeout(function(){
+			if(elem) elem.className = elem.className.replace(/active|hovered/g, '');
+		}, 200);
+	},
 	onScroll: function(){
 		if(menu.scroll_TO) clearTimeout(menu.scroll_TO);
 
@@ -93,7 +122,7 @@ var menu = {
 				evt.preventDefault();
 				dom.interact.pointerTarget = null;
 
-				menu.handleSelection(menu.active.className, evt.target.textContent, evt.target);
+				menu.triggerEvent('selection', { item: evt.target.textContent, target: evt.target });
 			}
 
 			else menu.close();
@@ -171,9 +200,9 @@ var menu = {
 
 				evt.preventDefault();
 
-				menu.handleSelection(menu.active.className, target.textContent, target);
+				menu.triggerEvent('selection', { item: target.textContent, target });
 
-				setTimeout(function(){ target.className = target.className.replace(/active|hovered/g, ''); }, 200);
+				menu.resetActive(target);
 			}
 
 			else if(menu.isOpen && typeof menu.itemKeys[keyPressed] !== 'undefined'){
@@ -183,19 +212,17 @@ var menu = {
 
 				evt.preventDefault();
 
-				menu.handleSelection(menu.active.className, target.textContent, target);
+				menu.triggerEvent('selection', { item: target.textContent, target });
 
-				setTimeout(function(){ target.className = target.className.replace(/active|hovered/g, ''); }, 200);
+				menu.resetActive(target);
 			}
 		}
 	},
-	handleSelection: function(menuClass, selectedItem, target){
-		if(selectedItem === 'Lock'){
+	onSelection: function(evt){
+		if(evt.item === 'Lock'){
 			dom.animation.add('write', function(){
-				target.className = 'menuItem lock'+ (target.className.includes('locked') ? '' : ' locked');
+				evt.target.className = 'menuItem lock'+ (evt.target.className.includes('locked') ? '' : ' locked');
 			});
 		}
-
-		else menu.close();
 	}
 };
