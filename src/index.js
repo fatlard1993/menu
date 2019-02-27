@@ -36,7 +36,7 @@ var menu = {
 	open: function(menuName, cb){
 		if(!menu.list[menuName]) return log.error(`menu.list["${menuName}"] is not defined!`);
 
-		menu.menuButton = menu.menuButton || document.getElementById('MenuButton');
+		menu.menuButton = menu.menuButton || document.getElementById('menuButton');
 
 		menu.isOpen = menuName;
 
@@ -72,6 +72,8 @@ var menu = {
 					menu.active.addEventListener('scroll', menu.onScroll);
 				}
 
+				menu.triggerEvent('open', { itemCount });
+
 				if(cb) cb();
 			});
 		});
@@ -91,6 +93,8 @@ var menu = {
 			menu.isOpen = false;
 
 			if(menu.menuButton) menu.menuButton.className = '';
+
+			menu.triggerEvent('close', { forced: force });
 		}
 	},
 	resetActive: function(elem){
@@ -101,14 +105,18 @@ var menu = {
 	onScroll: function(){
 		if(menu.scroll_TO) clearTimeout(menu.scroll_TO);
 
+		if(!menu.isScrolling) menu.triggerEvent('scrollStart');
+
 		menu.isScrolling = true;
 
 		menu.scroll_TO = setTimeout(function(){
+			menu.triggerEvent('scrollStop');
+
 			menu.isScrolling = false;
 		}, 400);
 	},
 	onPointerUp: function(evt){
-		if(evt.target.id === 'MenuButton'){
+		if(evt.target.id === 'menuButton'){
 			evt.preventDefault();
 			dom.interact.pointerTarget = null;
 
