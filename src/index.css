@@ -1,4 +1,4 @@
-// includes colors fonts dom
+// includes dom
 
 ul#menu {
 	@extend .discardable;
@@ -11,7 +11,7 @@ ul#menu {
 	right: 16px;
 	width: 180px;
 	top: 50px;
-	box-shadow: 3px 3px 18px 2px $grey-darkest;
+	box-shadow: 3px 3px 18px 2px grey;
 
 	li {
 		position: relative;
@@ -19,112 +19,47 @@ ul#menu {
 		word-wrap: break-word;
 		border-bottom: 1px solid;
 
-		border-color: $grey-lighter;
+		border-color: grey;
 		font-size: 15px;
 		padding: 12px 10px;
-		color: $blue-darkest;
-		background-color: $grey-lightest;
+		color: blue;
+		background-color: white;
 	}
 	li:last-of-type {
 		border-bottom: none;
 	}
-	li:before{
-		@extend .fas;
-
-		pointer-events: none;
-
-		font-size: 12px !important;
-		padding-right: 4px;
-	}
 	li:hover, li.hovered{
-		background-color: $grey-lighter;
-		color: $blue-dark;
+		background-color: grey;
+		color: blue;
 	}
 	li:active, li.active{
-		background-color: $blue;
-		color: $grey-lightest !important;
-	}
-	li.green{
-		color: $green-darkest;
-	}
-	li.green:hover, li.green.hovered{
-		color: $green-dark;
-	}
-	li.green:active, li.green.active {
-		background-color: $green;
-	}
-	li.purple, li.help{
-		color: $purple-darkest;
-	}
-	li.purple:hover, li.purple.hovered, li.help:hover, li.help.hovered{
-		color: $purple-dark;
-	}
-	li.purple:active, li.help:active, li.purple.active, li.help.active{
-		background-color: $purple;
+		background-color: blue;
+		color: grey !important;
 	}
 	li.red, li.lock{
-		color: $red-darkest;
+		color: red;
 	}
 	li.red:hover, li.red.hovered, li.lock:hover, li.lock.hovered{
-		color: $red-dark;
+		color: darkred;
 	}
 	li.red:active, li.lock:active, li.lock.locked:active, li.red.active, li.lock.active, li.lock.locked.active {
-		background-color: $red !important;
-	}
-	li.lock:before{
-		padding-right: 6px;
-		content: "\f13e";
+		background-color: red !important;
 	}
 	li.lock.locked {
-		background-color: $grey-lighter;
-		color: $red;
-	}
-	li.lock.locked:before{
-		content: "\f023";
+		background-color: grey;
+		color: red;
 	}
 	li.selected {
-		color: $blue;
+		color: blue;
 	}
 	li.selected:hover, li.selected.hovered, li.lock.locked:hover, li.lock.locked.hovered{
-		background-color: $grey-light;
-	}
-	li.back:before{
-		content: "\f053";
-	}
-	li.back:hover:before, li.back.hovered:before{
-		margin-right: 4px;
-		margin-left: -4px;
-	}
-	li.sub:before{
-		content: "\f054";
-	}
-	li.sub:hover:before, li.sub.hovered:before{
-		margin-right: -4px;
-		margin-left: 4px;
-	}
-	li.page:before{
-		content: "\f15b";
-		font-weight: 400;
-	}
-	li.page:hover:before, li.page.hovered:before{
-		content: "\f15b";
-	}
-	li.plus:before{
-		content: "\f067";
-	}
-	li.check:before{
-		content: "\f0c8";
-		font-weight: 400;
-	}
-	li.checked:before{
-		content: "\f14a";
-		font-weight: 400;
+		background-color: grey;
 	}
 }
 
 @media (max-height: 420px) {
 	ul#menu {
 		top: 5%;
-		background-color: $grey-lightest;
+		background-color: grey;
 	}
 }
