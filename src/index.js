@@ -232,5 +232,7 @@ var menu = {
 				evt.target.className = 'menuItem lock'+ (evt.target.className.includes('locked') ? '' : ' locked');
 			});
 		}
+
+		else if(menu.list[evt.item.toLowerCase()]) menu.open(evt.item.toLowerCase());
 	}
 };
