@@ -3,8 +3,9 @@
 /* global dom log */
 
 var menu = {
-	init: function(list = {}){
+	init: function(list = {}, opts = {}){
 		menu.list = list;
+		menu.opts = opts;
 
 		dom.interact.on('pointerUp', menu.onPointerUp);
 		dom.interact.on('keyDown', menu.onKeyDown);
@@ -13,11 +14,11 @@ var menu = {
 		menu.on('selection', menu.onSelection);
 	},
 	on: function(eventName, func){
-		const eventArrName = `on_${eventName}`;
+		eventName = `on_${eventName}`;
 
-		menu[eventArrName] = menu[eventArrName] || [];
+		menu[eventName] = menu[eventName] || [];
 
-		menu[eventArrName].push(func);
+		menu[eventName].push(func);
 	},
 	triggerEvent: function(type, evt){
 		if(!evt){
@@ -27,80 +28,107 @@ var menu = {
 
 		var eventName = `on_${type}`;
 
-		if(!menu[eventName]) return;
-
-		for(var x = 0, count = menu[eventName].length; x < count; ++x){
-			menu[eventName][x].call(menu, evt);
-		}
+		if(menu[eventName]) for(var x = 0, count = menu[eventName].length; x < count; ++x) menu[eventName][x].call(menu, evt);
 	},
-	open: function(menuName, cb){
+	open: function(menuName){
 		if(!menu.list[menuName]) return log.error(`menu.list["${menuName}"] is not defined!`);
 
 		menu.menuButton = menu.menuButton || document.getElementById('menuButton');
 
 		menu.isOpen = menuName;
 
-		if(menu.menuButton) menu.menuButton.className = 'active';
+		if(menu.menuButton) menu.menuButton.classList.add('active');
 
-		if(!menu.active) menu.active = document.getElementById('menu') || dom.createElem('ul', { id: 'menu', prependTo: document.body});
+		if(!menu.elem) menu.elem = document.getElementById('menu') || dom.createElem('ul', { id: 'menu', prependTo: document.body });
 
-		dom.empty(menu.active); //todo re-use list items
-		menu.items = [];
+		menu.items = menu.items || [];
 		menu.itemKeys = {};
 
 		dom.animation.add('write', function menuDraw_anim(){
-			menu.active.className = 'discard right';
+			menu.elem.className = 'discard '+ (menu.opts.discardDirection || 'right');
 
-			var itemCount = menu.list[menuName].length, item, itemOpts, li, x;
+			var newItemCount = menu.list[menuName].length, oldItemCount = menu.items.length, item, itemClass, li, key;
 
-			for(x = 0; x < itemCount; ++x){
+			for(var x = 0, count = Math.max(oldItemCount, newItemCount); x < count; ++x){
 				item = menu.list[menuName][x];
 
-				if(!item || item === '') continue;
+				if(!item){
+					if(menu.items[x]){
+						dom.remove(menu.items[x]);
 
-				itemOpts = item.split(':~:');
-				li = dom.createElem('li', { className: 'menuItem '+ (itemOpts[1] ? itemOpts[1] : ''), textContent: itemOpts[0] });
+						menu.items.splice(x, 1);
+					}
 
-				menu.active.appendChild(li);
-				menu.items.push(li);
-				menu.itemKeys[itemOpts[0].slice(menu.itemKeys[itemOpts[0].slice(0, 1)] ? 1 : 0, 1)] = x;
-			}
-
-			dom.show(menu.active, menuName, function(){
-				if(menu.active.scrollHeight > menu.active.clientHeight){
-					menu.active.removeEventListener('scroll', menu.onScroll);
-					menu.active.addEventListener('scroll', menu.onScroll);
+					continue;
 				}
 
-				menu.triggerEvent('open', { itemCount });
+				item = item.split(':~:');
+				itemClass = item[1] || '';
+				item = item[0];
 
-				if(cb) cb();
+				if(menu.items[x]) li = menu.items[x];
+
+				else{
+					li = dom.createElem('li', { appendTo: menu.elem });
+
+					menu.items.push(li);
+				}
+
+				li.textContent = li.itemText = item;
+				li.className = itemClass;
+
+				key = menu.generateMenuKey(item, li);
+
+				li.setAttribute('data-key', key);
+			}
+
+			dom.show(menu.elem, menuName, function(){
+				menu.elem.removeEventListener('scroll', menu.onScroll);
+
+				if(menu.elem.scrollHeight > menu.elem.clientHeight) menu.elem.addEventListener('scroll', menu.onScroll);
+
+				menu.triggerEvent('open');
 			});
 		});
 	},
 	close: function(force){
-		if(menu.isOpen){
-			if(!force){
-				var lockMenuItem = menu.active.getElementsByClassName('lock')[0];
+		if(!menu.isOpen || (!force && menu.locked)) return;
 
-				if((lockMenuItem && lockMenuItem.className.includes('locked'))) return;
+		menu.elem.removeEventListener('scroll', menu.onScroll);
+
+		dom.discard(menu.elem, menu.opts.discardDirection || 'right');
+
+		menu.isOpen = false;
+
+		if(menu.menuButton) menu.resetActive(menu.menuButton);
+
+		menu.triggerEvent('close', { forced: force });
+	},
+	generateMenuKey: function(name, elem){
+		for(var x = 0, count = name.length, key; x < count; ++x){
+			key = name.charAt(x);
+
+			if(!/[a-zA-Z0-9]/.test(key)) continue;
+
+			var keyUpperCase = key.toUpperCase();
+
+			if(!menu.itemKeys[keyUpperCase]){
+				menu.itemKeys[keyUpperCase] = elem;
+
+				elem.textContent = elem.textContent.replace(new RegExp(key), `[${key}]`);
+
+				return key;
 			}
-
-			menu.active.removeEventListener('scroll', menu.onScroll);
-
-			dom.discard(menu.active, 'right');
-
-			menu.isOpen = false;
-
-			if(menu.menuButton) menu.menuButton.className = '';
-
-			menu.triggerEvent('close', { forced: force });
 		}
 	},
 	resetActive: function(elem){
-		setTimeout(function(){
-			if(elem) elem.className = elem.className.replace(/active|hovered/g, '');
-		}, 200);
+		setTimeout(function(){ elem.classList.remove('active', 'hovered'); }, 200);
+	},
+	toggleLock: function(){
+		return (menu.locked = !menu.locked);
+	},
+	onSelection: function(evt){
+		if(menu.list[evt.item.toLowerCase()]) menu.open(evt.item.toLowerCase());
 	},
 	onScroll: function(){
 		if(menu.scroll_TO) clearTimeout(menu.scroll_TO);
@@ -126,113 +154,66 @@ var menu = {
 		}
 
 		else if(menu.isOpen && !menu.isScrolling){
-			if(evt.target.className.includes('menuItem')){
+			if(evt.target.parentElement === menu.elem){
 				evt.preventDefault();
 				dom.interact.pointerTarget = null;
 
-				menu.triggerEvent('selection', { item: evt.target.textContent, target: evt.target });
+				menu.triggerEvent('selection', { item: menu.itemKeys[evt.target.getAttribute('data-key')].itemText, target: evt.target });
 			}
 
 			else menu.close();
 		}
 	},
-	onKeyDown: function(evt, keyPressed){
-		if((document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) || menu.locked) return;
+	onKeyDown: function(evt){
+		if(!menu.isOpen || menu.locked || !Object.assign(menu.itemKeys, { ENTER: 1 })[evt.keyPressed] || (document.activeElement && { INPUT: 1, TEXTAREA: 1 }[document.activeElement.tagName])) return;
 
-		var target;
+		evt.preventDefault();
 
-		if(menu.isOpen){
-			if(keyPressed === 'ENTER'){
-				target = menu.active.getElementsByClassName('hovered')[0];
+		menu.activeItem = menu.hoveredItem && evt.keyPressed === 'ENTER' ? menu.hoveredItem : (menu.itemKeys[evt.keyPressed] ? menu.itemKeys[evt.keyPressed] : null);
 
-				if(!target) return;
+		if(!menu.activeItem) return;
 
-				evt.preventDefault();
+		if(menu.hoveredItem) delete menu.hoveredItem;
 
-				dom.animation.add('write', function(){
-					target.className += ' active';
-				});
-			}
-
-			else if(typeof menu.itemKeys[keyPressed] !== 'undefined'){
-				target = menu.items[menu.itemKeys[keyPressed]];
-
-				if(!target) return;
-
-				evt.preventDefault();
-
-				dom.animation.add('write', function(){
-					target.className += ' active';
-				});
-			}
-		}
+		dom.animation.add('write', function(){
+			menu.activeItem.classList.add('active');
+		});
 	},
-	onKeyUp: function(evt, keyPressed){
-		if((document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) || menu.locked) return;
+	onKeyUp: function(evt){
+		if((document.activeElement && { INPUT: 1, TEXTAREA: 1 }[document.activeElement.tagName]) || menu.locked) return;
 
-		var target;
-
-		if(keyPressed === 'M'){
+		if(evt.keyPressed === 'M' && !menu.isOpen){
 			evt.preventDefault();
 
-			if(menu.isOpen) menu.close();
-
-			else menu.open('main');
+			menu.open('main');
 		}
 
-		else if(menu.isOpen){
-			if(keyPressed === 'UP' || keyPressed === 'DOWN'){
-				evt.preventDefault();
+		else if(!menu.isOpen) return;
 
-				var hoveredItem = menu.active.getElementsByClassName('hovered')[0];
+		if(menu.activeItem){
+			evt.preventDefault();
 
-				dom.animation.add('write', function(){
-					if(hoveredItem){
-						hoveredItem.className = hoveredItem.className.replace(/\shovered/g, '');
+			menu.triggerEvent('selection', { item: menu.activeItem.itemText, target: menu.activeItem });
 
-						var nextToHover = hoveredItem[(keyPressed === 'UP' ? 'previousSibling' : 'nextSibling')];
+			menu.resetActive(menu.activeItem);
 
-						if(nextToHover) nextToHover.className += ' hovered';
-					}
-
-					else{
-						menu.active.children[keyPressed === 'UP' ? menu.active.children.length - 1 : 0].className += ' hovered';
-					}
-				});
-			}
-
-			else if(keyPressed === 'ENTER'){
-				target = menu.active.getElementsByClassName('active')[0];
-
-				if(!target) return;
-
-				evt.preventDefault();
-
-				menu.triggerEvent('selection', { item: target.textContent, target });
-
-				menu.resetActive(target);
-			}
-
-			else if(menu.isOpen && typeof menu.itemKeys[keyPressed] !== 'undefined'){
-				target = menu.items[menu.itemKeys[keyPressed]];
-
-				if(!target) return;
-
-				evt.preventDefault();
-
-				menu.triggerEvent('selection', { item: target.textContent, target });
-
-				menu.resetActive(target);
-			}
+			delete menu.activeItem;
 		}
-	},
-	onSelection: function(evt){
-		if(evt.item === 'Lock'){
+
+		else if(evt.keyPressed === 'UP' || evt.keyPressed === 'DOWN'){
+			evt.preventDefault();
+
 			dom.animation.add('write', function(){
-				evt.target.className = 'menuItem lock'+ (evt.target.className.includes('locked') ? '' : ' locked');
+				if(!menu.hoveredItem) menu.hoveredItem = menu.elem.children[evt.keyPressed === 'UP' ? menu.elem.children.length - 1 : 0];
+
+				else {
+					menu.hoveredItem.classList.remove('hovered');
+
+					menu.hoveredItem = menu.hoveredItem[`${evt.keyPressed === 'UP' ? 'previous' : 'next'}Sibling`];
+				}
+
+				menu.hoveredItem.classList.add('hovered');
 			});
 		}
-
-		else if(menu.list[evt.item.toLowerCase()]) menu.open(evt.item.toLowerCase());
 	}
 };
