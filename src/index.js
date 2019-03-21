@@ -79,7 +79,7 @@ var menu = {
 
 				key = menu.generateMenuKey(item, li);
 
-				li.setAttribute('data-key', key);
+				li.setAttribute('data-key', key.toUpperCase());
 			}
 
 			dom.show(menu.elem, menuName, function(){
@@ -159,6 +159,8 @@ var menu = {
 				dom.interact.pointerTarget = null;
 
 				menu.triggerEvent('selection', { item: menu.itemKeys[evt.target.getAttribute('data-key')].itemText, target: evt.target });
+
+				evt.target.blur();
 			}
 
 			else menu.close();
