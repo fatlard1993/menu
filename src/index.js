@@ -115,7 +115,7 @@ var menu = {
 			if(!menu.itemKeys[keyUpperCase]){
 				menu.itemKeys[keyUpperCase] = elem;
 
-				elem.textContent = elem.textContent.replace(new RegExp(key), `[${key}]`);
+				if(!dom.isMobile) elem.textContent = elem.textContent.replace(new RegExp(key), `[${key}]`);
 
 				return key;
 			}
