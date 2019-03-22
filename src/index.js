@@ -92,7 +92,9 @@ var menu = {
 		});
 	},
 	close: function(force){
-		if(!menu.isOpen || (!force && menu.locked)) return;
+		var forceFn = { force: function(){ menu.close(1); } };
+
+		if(!menu.isOpen || (!force && menu.locked)) return forceFn;
 
 		menu.elem.removeEventListener('scroll', menu.onScroll);
 
@@ -100,9 +102,13 @@ var menu = {
 
 		menu.isOpen = false;
 
+		delete menu.oneTimeKeyboardHints;
+
 		if(menu.menuButton) menu.resetActive(menu.menuButton);
 
 		menu.triggerEvent('close', { forced: force });
+
+		return forceFn;
 	},
 	generateMenuKey: function(name, elem){
 		for(var x = 0, count = name.length, key; x < count; ++x){
@@ -115,7 +121,7 @@ var menu = {
 			if(!menu.itemKeys[keyUpperCase]){
 				menu.itemKeys[keyUpperCase] = elem;
 
-				if(!dom.isMobile) elem.textContent = elem.textContent.replace(new RegExp(key), `[${key}]`);
+				if(menu.opts.showKeyboardHints || menu.oneTimeKeyboardHints) elem.textContent = elem.textContent.replace(new RegExp(key), `[${key}]`);
 
 				return key;
 			}
@@ -184,15 +190,23 @@ var menu = {
 	onKeyUp: function(evt){
 		if((document.activeElement && { INPUT: 1, TEXTAREA: 1 }[document.activeElement.tagName]) || menu.locked) return;
 
-		if(evt.keyPressed === 'M' && !menu.isOpen){
+		if(evt.keyPressed === 'M'){
 			evt.preventDefault();
+
+			menu.oneTimeKeyboardHints = true;
 
 			menu.open('main');
 		}
 
 		else if(!menu.isOpen) return;
 
-		if(menu.activeItem){
+		if(evt.keyPressed === 'ESCAPE'){
+			evt.preventDefault();
+
+			menu.close().force();
+		}
+
+		else if(menu.activeItem){
 			evt.preventDefault();
 
 			menu.triggerEvent('selection', { item: menu.activeItem.itemText, target: menu.activeItem });
