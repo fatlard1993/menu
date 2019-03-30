@@ -168,8 +168,6 @@ var menu = {
 
 				evt.target.blur();
 			}
-
-			else menu.close();
 		}
 	},
 	onKeyDown: function(evt){
