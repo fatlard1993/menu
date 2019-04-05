@@ -159,15 +159,13 @@ var menu = {
 			else menu.open('main');
 		}
 
-		else if(menu.isOpen && !menu.isScrolling){
-			if(evt.target.parentElement === menu.elem){
-				evt.preventDefault();
-				dom.interact.pointerTarget = null;
+		else if(!menu.isScrolling && evt.target.parentElement === menu.elem){
+			evt.preventDefault();
+			dom.interact.pointerTarget = null;
 
-				menu.triggerEvent('selection', { item: menu.itemKeys[evt.target.getAttribute('data-key')].itemText, target: evt.target });
+			menu.triggerEvent('selection', { item: menu.itemKeys[evt.target.getAttribute('data-key')].itemText, target: evt.target });
 
-				evt.target.blur();
-			}
+			evt.target.blur();
 		}
 	},
 	onKeyDown: function(evt){
