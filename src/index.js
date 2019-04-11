@@ -152,7 +152,6 @@ var menu = {
 	onPointerUp: function(evt){
 		if(evt.target.id === 'menuButton'){
 			evt.preventDefault();
-			dom.interact.pointerTarget = null;
 
 			if(menu.isOpen) menu.close();
 
@@ -161,7 +160,6 @@ var menu = {
 
 		else if(!menu.isScrolling && evt.target.parentElement === menu.elem){
 			evt.preventDefault();
-			dom.interact.pointerTarget = null;
 
 			menu.triggerEvent('selection', { item: menu.itemKeys[evt.target.getAttribute('data-key')].itemText, target: evt.target });
 
