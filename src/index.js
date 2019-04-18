@@ -68,12 +68,12 @@ var menu = {
 				itemClass = item[1] || '';
 				item = item[0];
 
-				if(menu.items[x]) li = menu.items[x];
+				if(menu.items[menuItemNames[x]]) li = menu.items[menuItemNames[x]];
 
 				else{
 					li = dom.createElem('li', { appendTo: menu.elem });
 
-					menu.items[x] = li;
+					menu.items[menuItemNames[x]] = li;
 				}
 
 				li.textContent = li.itemText = item;
