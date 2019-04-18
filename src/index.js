@@ -3,6 +3,7 @@
 /* global dom log */
 
 var menu = {
+	items: {},
 	init: function(list = {}, opts = {}){
 		menu.list = list;
 		menu.opts = opts;
@@ -41,22 +42,23 @@ var menu = {
 
 		if(!menu.elem) menu.elem = document.getElementById('menu') || dom.createElem('ul', { id: 'menu', prependTo: document.body });
 
-		menu.items = menu.items || [];
 		menu.itemKeys = {};
 
 		dom.animation.add('write', function menuDraw_anim(){
 			menu.elem.className = 'discard '+ (menu.opts.discardDirection || 'right');
 
-			var newItemCount = menu.list[menuName].length, oldItemCount = menu.items.length, item, itemClass, li, key;
+			var menuItemNames = Object.keys(menu.items), newItemCount = menu.list[menuName].length, oldItemCount = menuItemNames.length, item, itemClass, li, key;
+
+			log()(`Most items: ${Math.max(oldItemCount, newItemCount)}`);
 
 			for(var x = 0, count = Math.max(oldItemCount, newItemCount); x < count; ++x){
 				item = menu.list[menuName][x];
 
 				if(!item){
-					if(menu.items[x]){
-						dom.remove(menu.items[x]);
+					if(menuItemNames[x]){
+						dom.remove(menu.items[menuItemNames[x]]);
 
-						menu.items.splice(x, 1);
+						delete menu.items[menuItemNames[x]];
 					}
 
 					continue;
@@ -71,7 +73,7 @@ var menu = {
 				else{
 					li = dom.createElem('li', { appendTo: menu.elem });
 
-					menu.items.push(li);
+					menu.items[x] = li;
 				}
 
 				li.textContent = li.itemText = item;
