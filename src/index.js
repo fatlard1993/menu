@@ -47,39 +47,41 @@ var menu = {
 		dom.animation.add('write', function menuDraw_anim(){
 			menu.elem.className = 'discard '+ (menu.opts.discardDirection || 'right');
 
-			var menuItemNames = Object.keys(menu.items), newItemCount = menu.list[menuName].length, oldItemCount = menuItemNames.length, item, itemClass, li, key;
+			var newMenuItemNames = Object.keys(menu.list[menuName]), newItemCount = menu.list[menuName].length;
+			var oldMenuItemNames = Object.keys(menu.items), oldItemCount = oldMenuItemNames.length;
+			var itemName, itemClass, li, key;
 
 			log()(`Most items: ${Math.max(oldItemCount, newItemCount)}`);
 
 			for(var x = 0, count = Math.max(oldItemCount, newItemCount); x < count; ++x){
-				item = menu.list[menuName][x];
+				itemName = menu.list[menuName][newMenuItemNames[x]];
 
-				if(!item){
-					if(menuItemNames[x]){
-						dom.remove(menu.items[menuItemNames[x]]);
+				if(!itemName){
+					if(oldMenuItemNames[x]){
+						dom.remove(menu.items[oldMenuItemNames[x]]);
 
-						delete menu.items[menuItemNames[x]];
+						delete menu.items[oldMenuItemNames[x]];
 					}
 
 					continue;
 				}
 
-				item = item.split(':~:');
-				itemClass = item[1] || '';
-				item = item[0];
+				itemName = itemName.split(':~:');
+				itemClass = itemName[1] || '';
+				itemName = itemName[0];
 
-				if(menu.items[menuItemNames[x]]) li = menu.items[menuItemNames[x]];
+				if(menu.items[newMenuItemNames[x]]) li = menu.items[newMenuItemNames[x]];
 
 				else{
 					li = dom.createElem('li', { appendTo: menu.elem });
 
-					menu.items[menuItemNames[x]] = li;
+					menu.items[newMenuItemNames[x]] = li;
 				}
 
-				li.textContent = li.itemText = item;
+				li.textContent = li.itemText = itemName;
 				li.className = itemClass;
 
-				key = menu.generateMenuKey(item, li);
+				key = menu.generateMenuKey(itemName, li);
 
 				li.setAttribute('data-key', key.toUpperCase());
 			}
