@@ -51,8 +51,6 @@ var menu = {
 			var oldMenuItemNames = Object.keys(menu.items), oldItemCount = oldMenuItemNames.length;
 			var itemName, itemClass, li, key;
 
-			log()(`Most items: ${Math.max(oldItemCount, newItemCount)}`);
-
 			for(var x = 0, count = Math.max(oldItemCount, newItemCount); x < count; ++x){
 				itemName = menu.list[menuName][newMenuItemNames[x]];
 
