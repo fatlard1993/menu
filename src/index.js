@@ -154,6 +154,8 @@ var menu = {
 		}, 400);
 	},
 	onPointerUp: function(evt){
+		if(evt.pointerType === 'mouse' && evt.which !== 1) return;
+
 		if(evt.target.id === 'menuButton'){
 			evt.preventDefault();
 
