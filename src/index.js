@@ -79,6 +79,8 @@ var menu = {
 				li.textContent = li.itemText = itemName;
 				li.className = itemClass;
 
+				if(itemClass.includes('default')) menu.hoveredItem = li;
+
 				key = menu.generateMenuKey(itemName, li);
 
 				li.setAttribute('data-key', key.toUpperCase());
