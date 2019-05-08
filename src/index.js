@@ -86,7 +86,9 @@ var menu = {
 				li.setAttribute('data-key', key.toUpperCase());
 			}
 
-			dom.show(menu.elem, menuName, function(){
+			dom.show(menu.elem, '', function(){
+				menu.className = menuName;
+
 				menu.elem.removeEventListener('scroll', menu.onScroll);
 
 				if(menu.elem.scrollHeight > menu.elem.clientHeight) menu.elem.addEventListener('scroll', menu.onScroll);
