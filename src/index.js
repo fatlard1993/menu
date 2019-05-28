@@ -32,7 +32,7 @@ var menu = {
 		if(menu[eventName]) for(var x = 0, count = menu[eventName].length; x < count; ++x) menu[eventName][x].call(menu, evt);
 	},
 	open: function(menuName){
-		if(!menu.list[menuName]) return log.error(`menu.list["${menuName}"] is not defined!`);
+		if(!menu.list[menuName]) return log.error()(`[menu] menu.list["${menuName}"] is not defined!`);
 
 		menu.menuButton = menu.menuButton || document.getElementById('menuButton');
 
