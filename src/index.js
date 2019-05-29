@@ -34,18 +34,14 @@ var menu = {
 	open: function(menuName){
 		if(!menu.list[menuName]) return log.error()(`[menu] menu.list["${menuName}"] is not defined!`);
 
-		menu.menuButton = menu.menuButton || document.getElementById('menuButton');
-
 		menu.isOpen = menuName;
-
-		if(menu.menuButton) menu.menuButton.classList.add('active');
 
 		if(!menu.elem) menu.elem = document.getElementById('menu') || dom.createElem('ul', { id: 'menu', prependTo: document.body });
 
 		menu.itemKeys = {};
 
 		dom.animation.add('write', function menuDraw_anim(){
-			menu.elem.className = 'discard '+ (menu.opts.discardDirection || 'right');
+			menu.elem.className = 'discard '+ (menu.opts.discardDirection || 'static');
 
 			var newMenuItemNames = Object.keys(menu.list[menuName]), newItemCount = menu.list[menuName].length;
 			var oldMenuItemNames = Object.keys(menu.items), oldItemCount = oldMenuItemNames.length;
@@ -108,8 +104,6 @@ var menu = {
 
 		delete menu.oneTimeKeyboardHints;
 
-		if(menu.menuButton) menu.resetActive(menu.menuButton);
-
 		menu.triggerEvent('close', { forced: force });
 	},
 	generateMenuKey: function(name, elem){
@@ -154,15 +148,7 @@ var menu = {
 	onPointerUp: function(evt){
 		if(evt.pointerType === 'mouse' && evt.which && evt.which !== 1) return;
 
-		if(evt.target.id === 'menuButton'){
-			evt.preventDefault();
-
-			if(menu.isOpen) menu.close();
-
-			else menu.open('main');
-		}
-
-		else if(!menu.isScrolling && evt.target.parentElement === menu.elem){
+		if(!menu.isScrolling && evt.target.parentElement === menu.elem){
 			evt.preventDefault();
 
 			menu.triggerEvent('selection', { item: menu.itemKeys[evt.target.getAttribute('data-key')].itemText, target: evt.target });
