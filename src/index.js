@@ -98,9 +98,7 @@ var menu = {
 		});
 	},
 	close: function(force){
-		var forceFn = { force: function(){ menu.close(1); } };
-
-		if(!menu.isOpen || (!force && menu.locked)) return forceFn;
+		if(!menu.isOpen || (!force && menu.locked)) return;
 
 		menu.elem.removeEventListener('scroll', menu.onScroll);
 
@@ -113,8 +111,6 @@ var menu = {
 		if(menu.menuButton) menu.resetActive(menu.menuButton);
 
 		menu.triggerEvent('close', { forced: force });
-
-		return forceFn;
 	},
 	generateMenuKey: function(name, elem){
 		for(var x = 0, count = name.length, key; x < count; ++x){
@@ -205,7 +201,7 @@ var menu = {
 		if(evt.keyPressed === 'ESCAPE'){
 			evt.preventDefault();
 
-			menu.close().force();
+			menu.close(1);
 		}
 
 		else if(menu.activeItem){
