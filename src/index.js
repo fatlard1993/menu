@@ -98,7 +98,7 @@ var menu = {
 
 		menu.elem.removeEventListener('scroll', menu.onScroll);
 
-		dom.discard(menu.elem, menu.opts.discardDirection || 'right');
+		dom.discard(menu.elem, menu.opts.discardDirection || 'static');
 
 		menu.isOpen = false;
 
