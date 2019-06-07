@@ -89,7 +89,7 @@ var menu = {
 
 				if(menu.elem.scrollHeight > menu.elem.clientHeight) menu.elem.addEventListener('scroll', menu.onScroll);
 
-				menu.triggerEvent('open');
+				menu.triggerEvent('open', menu.isOpen);
 			});
 		});
 	},
@@ -135,12 +135,12 @@ var menu = {
 	onScroll: function(){
 		if(menu.scroll_TO) clearTimeout(menu.scroll_TO);
 
-		if(!menu.isScrolling) menu.triggerEvent('scrollStart');
+		if(!menu.isScrolling) menu.triggerEvent('scrollStart', menu.isScrolling);
 
 		menu.isScrolling = true;
 
 		menu.scroll_TO = setTimeout(function(){
-			menu.triggerEvent('scrollStop');
+			menu.triggerEvent('scrollStop', menu.isScrolling);
 
 			menu.isScrolling = false;
 		}, 400);
