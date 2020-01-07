@@ -34,6 +34,8 @@ var menu = {
 	open: function(menuName){
 		if(!menu.list[menuName]) return log.error()(`[menu] menu.list["${menuName}"] is not defined!`);
 
+		if(menu.dontOpen) return delete menu.dontOpen;
+
 		menu.isOpen = menuName;
 
 		if(!menu.elem) menu.elem = document.getElementById('menu') || dom.createElem('ul', { id: 'menu', prependTo: document.body });
@@ -92,19 +94,23 @@ var menu = {
 				menu.triggerEvent('open', menu.isOpen);
 			});
 		});
+
+		return menu;
 	},
 	close: function(force){
+		if(menu.dontClose) return delete menu.dontClose;
+
 		if(!menu.isOpen || (!force && menu.locked)) return;
 
 		menu.elem.removeEventListener('scroll', menu.onScroll);
 
-		dom.discard(menu.elem, menu.opts.discardDirection || 'static');
+		dom.discard(menu.elem, menu.opts.discardDirection || 'static', () => {
+			menu.isOpen = false;
 
-		menu.isOpen = false;
+			delete menu.oneTimeKeyboardHints;
 
-		delete menu.oneTimeKeyboardHints;
-
-		menu.triggerEvent('close', { forced: force });
+			menu.triggerEvent('close', { forced: force });
+		});
 	},
 	generateMenuKey: function(name, elem){
 		for(var x = 0, count = name.length, key; x < count; ++x){
