@@ -112,6 +112,15 @@ var menu = {
 			menu.triggerEvent('close', { forced: force });
 		});
 	},
+	drawAtCursor: function(evt){
+		var position = dom.resolvePosition(evt);
+
+		dom.animation.add('write', function(){
+			menu.elem.style.top = (position.y >= document.body.clientHeight - menu.elem.clientHeight ? position.y - menu.elem.clientHeight : position.y) +'px';
+			menu.elem.style.left = (position.x >= document.body.clientWidth - menu.elem.clientWidth ? position.x - menu.elem.clientWidth : position.x) +'px';
+			menu.elem.style.right = 'unset';
+		});
+	},
 	generateMenuKey: function(name, elem){
 		for(var x = 0, count = name.length, key; x < count; ++x){
 			key = name.charAt(x);
@@ -157,7 +166,7 @@ var menu = {
 		if(!menu.isScrolling && evt.target.parentElement === menu.elem){
 			evt.preventDefault();
 
-			menu.triggerEvent('selection', { item: menu.itemKeys[evt.target.getAttribute('data-key')].itemText, target: evt.target });
+			menu.triggerEvent('selection', { item: menu.itemKeys[evt.target.getAttribute('data-key')].itemText, target: evt.target, originalEvent: evt });
 
 			evt.target.blur();
 		}
