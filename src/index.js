@@ -81,7 +81,7 @@ var menu = {
 
 				key = menu.generateMenuKey(itemName, li);
 
-				li.setAttribute('data-key', key.toUpperCase());
+				if(key) li.setAttribute('data-key', key.toUpperCase());
 			}
 
 			dom.show(menu.elem, '', function(){
