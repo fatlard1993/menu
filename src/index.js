@@ -166,7 +166,7 @@ var menu = {
 		if(!menu.isScrolling && evt.target.parentElement === menu.elem){
 			evt.preventDefault();
 
-			menu.triggerEvent('selection', { item: menu.itemKeys[evt.target.getAttribute('data-key')].itemText, target: evt.target, originalEvent: evt });
+			menu.triggerEvent('selection', { item: evt.target.getAttribute('data-key') ? menu.itemKeys[evt.target.getAttribute('data-key')].itemText : evt.target.textContent, target: evt.target, originalEvent: evt });
 
 			evt.target.blur();
 		}
