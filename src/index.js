@@ -1,8 +1,8 @@
-// includes dom log
-// babel
-/* global dom log */
+import Log from 'log';
+import dom from 'dom';
 
-var menu = {
+const menu = {
+	log: new Log({ tag: 'menu' }),
 	items: {},
 	init: function(list = {}, opts = {}){
 		menu.list = list;
@@ -32,7 +32,7 @@ var menu = {
 		if(menu[eventName]) for(var x = 0, count = menu[eventName].length; x < count; ++x) menu[eventName][x].call(menu, evt);
 	},
 	open: function(menuName){
-		if(!menu.list[menuName]) return log.error()(`[menu] menu.list["${menuName}"] is not defined!`);
+		if(!menu.list[menuName]) return menu.log.error()(`menu.list["${menuName}"] is not defined!`);
 
 		if(menu.dontOpen) return delete menu.dontOpen;
 
@@ -232,3 +232,5 @@ var menu = {
 		}
 	}
 };
+
+if(typeof module === 'object') module.exports = menu;
