@@ -1,7 +1,7 @@
 // includes dom
 
 ul#menu {
-	@extend .discardable;
+	@mixin discardable;
 
 	position: absolute;
 	z-index: 2;
