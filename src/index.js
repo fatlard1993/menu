@@ -8,7 +8,6 @@ const menu = {
 		menu.list = list;
 		menu.opts = opts;
 
-		dom.interact.on('pointerUp', menu.onPointerUp);
 		dom.interact.on('keyDown', menu.onKeyDown);
 		dom.interact.on('keyUp', menu.onKeyUp);
 
@@ -69,7 +68,10 @@ const menu = {
 				if(menu.items[newMenuItemNames[x]]) li = menu.items[newMenuItemNames[x]];
 
 				else{
-					li = dom.createElem('li', { appendTo: menu.elem });
+					li = dom.createElem('li', {
+						appendTo: menu.elem,
+						onPointerPress: menu.onPointerPress
+					});
 
 					menu.items[newMenuItemNames[x]] = li;
 				}
@@ -160,16 +162,14 @@ const menu = {
 			menu.isScrolling = false;
 		}, 400);
 	},
-	onPointerUp: function(evt){
-		if(evt.pointerType === 'mouse' && evt.which && evt.which !== 1) return;
+	onPointerPress: function(evt){
+		if(menu.isScrolling) return;
 
-		if(!menu.isScrolling && evt.target.parentElement === menu.elem){
-			evt.preventDefault();
+		evt.preventDefault();
 
-			menu.triggerEvent('selection', { item: evt.target.getAttribute('data-key') ? menu.itemKeys[evt.target.getAttribute('data-key')].itemText : evt.target.textContent, target: evt.target, originalEvent: evt });
+		menu.triggerEvent('selection', { item: evt.target.getAttribute('data-key') ? menu.itemKeys[evt.target.getAttribute('data-key')].itemText : evt.target.textContent, target: evt.target, originalEvent: evt });
 
-			evt.target.blur();
-		}
+		evt.target.blur();
 	},
 	onKeyDown: function(evt){
 		if(!menu.isOpen || menu.locked || !Object.assign(menu.itemKeys, { ENTER: 1 })[evt.keyPressed] || (document.activeElement && { INPUT: 1, TEXTAREA: 1 }[document.activeElement.tagName])) return;
