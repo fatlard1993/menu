@@ -1,6 +1,6 @@
 {
 	"name": "menu",
-	"version": "2.3.5",
+	"version": "2.3.6",
 	"description": "A simple js menu interface",
 	"main": "src/index.js",
 	"mainCss": "src/index.css",
